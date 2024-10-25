@@ -1,0 +1,14 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+        bind:
+
+    KimaiPlugin\RunningBalanceBundle\Controller\:
+        resource: '../../Controller'
+        tags: ['controller.service_arguments']
+
+    KimaiPlugin\RunningBalanceBundle\:
+        resource: '../../*'
+        exclude: '../../{Resources}'
