@@ -107,7 +107,7 @@ final class RunningBalanceController extends AbstractController
 
                             $data["days_in_month"][] = $daysinmonth;
                             for($i = 1; $i <= $daysinmonth; $i++) {
-                                if($project->getStart() > new DateTime($year->getYear() . '-' . $month->getMonthNumber() . '-' . $i)) {
+                                if($project->getStart() > new DateTime($year->getYear() . '-' . $month->getMonthNumber() . '-' . sprintf("%02d", $i))) {
                                     $runningDurationBalance[] = 0;
                                     continue;
                                 }
