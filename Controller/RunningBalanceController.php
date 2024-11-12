@@ -101,7 +101,10 @@ final class RunningBalanceController extends AbstractController
                             //$month->setBillableDurationBalance($runningDurationBalance[$idx]);
                             $idx++;
                         } else {
-                            $daysinmonth = cal_days_in_month(CAL_GREGORIAN, $month->getMonthNumber(), $year->getYear());
+                            //$daysinmonth = cal_days_in_month(CAL_GREGORIAN, $month->getMonthNumber(), $year->getYear());
+                            $daysinmonth = (int)date('t', mktime(0, 0, 0, $month->getMonthNumber(), 1, $year->getYear())); 
+
+
                             $data["days_in_month"][] = $daysinmonth;
                             for($i = 1; $i <= $daysinmonth; $i++) {
                                 if($project->getStart() > new DateTime($year->getYear() . '-' . $month->getMonthNumber() . '-' . $i)) {
