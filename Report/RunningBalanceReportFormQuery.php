@@ -15,6 +15,7 @@ use App\Entity\User;
 final class RunningBalanceReportFormQuery
 {
     private ?\App\Entity\Project $project = null;
+    private ?int $timeResolution = 0;
 
     public function __construct(User $user)
     {
@@ -38,5 +39,15 @@ final class RunningBalanceReportFormQuery
     public function setProject(?\App\Entity\Project $project): void
     {
         $this->project = $project;
+    }
+
+    public function getTimeResolution(): ?int
+    {
+        return $this->timeResolution;
+    }
+
+    public function setTimeResolution(?int $timeResolution): void
+    {
+        $this->timeResolution = $timeResolution;
     }
 }

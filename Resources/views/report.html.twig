@@ -16,6 +16,7 @@
     {{ charts.bar_javascript({'legend': {'display': false}}) }}
 {%endblock%}
 {% block report %}
+{{timeResolution}}
 {% if project %}
 {% set chartPrefix = 'project-' ~ project.id ~ '-' %}
     {% import "macros/charts.html.twig" as charts %}
@@ -24,24 +25,47 @@
                 {% set chartData = [] %}
                 {% set chartLabels = [] %}
                 {% set index = 0 %}
+                {% set monthIndex = 0 %}
 
                 {% for year in project_details.years %}
                     {# month \App\Model\Statistic\Month #}
                     {% for month in year.months %}
-                        {% set monthDate = date(year.year ~ '-' ~ month.month ~ '-01 00:00:00') %}
-                        {% if project.end is null or monthDate < project.end %}
-                            {% set totalBudget = running_duration_balance[index] %}
-                            {% set chartLabels = chartLabels|merge([monthDate|month_name ~ ' ' ~ year.year]) %}
-                            {% set chartValue = {
-                                        'label': (totalBudget|duration),
-                                        'value': '' ~ (totalBudget|chart_duration),
-                                    } %}
-                            {% if totalBudget < 0 %}
-                                {% set chartValue = chartValue|merge({'color': 'red'}) %}
+                        {% if timeResolution == 0 %}
+                            {% set monthDate = date(year.year ~ '-' ~ month.month ~ '-01 00:00:00') %}
+                            {% if project.end is null or monthDate < project.end %}
+                                {% set totalBudget = running_duration_balance[index] %}
+                                {% set chartLabels = chartLabels|merge([monthDate|month_name ~ ' ' ~ year.year]) %}
+                                {% set chartValue = {
+                                            'label': (totalBudget|duration),
+                                            'value': '' ~ (totalBudget|chart_duration),
+                                        } %}
+                                {% if totalBudget < 0 %}
+                                    {% set chartValue = chartValue|merge({'color': 'red'}) %}
+                                {% endif %}
+                                {% set chartData = chartData|merge([chartValue]) %}
+                                {% set index = index + 1 %}
                             {% endif %}
-                            {% set chartData = chartData|merge([chartValue]) %}
+                        {% else %}
+                            {% for day in 1..days_in_month[monthIndex] %}
+                                {% set dayDate = date(year.year ~ '-' ~ month.month ~ '-' ~ day ~ ' 00:00:00') %}
+                                {% if dayDate >= project.start %}
+                                    {% if project.end is null or dayDate < project.end %}
+                                        {% set totalBudget = running_duration_balance[index] ?? 0 %}
+                                        {% set chartLabels = chartLabels|merge([dayDate|date('d M')]) %}
+                                        {% set chartValue = {
+                                                    'label': (totalBudget|duration),
+                                                    'value': '' ~ (totalBudget|chart_duration),
+                                                } %}
+                                        {% if totalBudget < 0 %}
+                                            {% set chartValue = chartValue|merge({'color': 'red'}) %}
+                                        {% endif %}
+                                        {% set chartData = chartData|merge([chartValue]) %}
+                                    {% endif %}
+                                    {% set index = index + 1 %}
+                                {% endif %}
+                            {% endfor %}
+                            {% set monthIndex = monthIndex + 1 %}
                         {% endif %}
-                        {% set index = index + 1 %}
                     {% endfor %}
                 {% endfor %}
                 {{ charts.bar_chart('Balance', chartLabels, [chartData], {'height': '300px'}) }}

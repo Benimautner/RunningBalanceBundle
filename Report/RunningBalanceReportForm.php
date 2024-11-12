@@ -11,10 +11,12 @@
 namespace KimaiPlugin\RunningBalanceBundle\Report;
 
 use App\Form\Type\ProjectType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use App\Form\Type\ReportSumType;
 
 /**
  * @extends AbstractType<DemoReportQuery>
@@ -30,6 +32,13 @@ final class RunningBalanceReportForm extends AbstractType
             'join_customer' => true,
         ];
         $builder->add('project', ProjectType::class, $projectOptions);
+        $builder->add('timeResolution', ChoiceType::class, [
+            'label' => 'timeResolution',
+            'choices' => [
+                'monthly' => 0,
+                'daily' => 1,
+            ],
+        ]);
 /*
         $builder->addEventListener(
             FormEvents::PRE_SUBMIT,
