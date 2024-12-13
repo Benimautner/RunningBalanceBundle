@@ -86,14 +86,22 @@ final class RunningBalanceController extends AbstractController
             }
 
             $idx = 0;
+            $break = false;
             if ($project->getTimeBudget() > 0 && $project->isMonthlyBudget() && $project->getStart() !== null) {
                 foreach($model->getYears() as $year) {
+                    if($break) {
+                        break;
+                    }
                     if($year->getYear() > $query->getToday()->format('Y')) {
                     //    break;
                     }
                     foreach($year->getMonths() as $month) {
+                        if($break) {
+                            break;
+                        }
                         if(($year->getYear() >= $query->getToday()->format('Y') && $month->getMonthNumber() > $query->getToday()->format('m'))) {
-                    //      break;
+                            $break = true;
+                            break;
                         }
                         if($timeResolution === 0) {
                             $previous = $runningDurationBalance[$idx - 1] ?? 0;
@@ -110,6 +118,12 @@ final class RunningBalanceController extends AbstractController
                                 if($project->getStart() > new DateTime($year->getYear() . '-' . $month->getMonthNumber() . '-' . sprintf("%02d", $i))) {
                                     $runningDurationBalance[] = 0;
                                     continue;
+                                }
+                                $now = new DateTime();
+                                if(new Datetime($year->getYear() . '-' . $month->getMonthNumber() . '-' . sprintf("%02d", $i)) > $now) {
+                                    $runningDurationBalance[] = 0;
+                                    $break = true;
+                                    break;
                                 }
                                 $previous = $runningDurationBalance[$idx - 1] ?? 0;
                                 $today = $durations_by_day[$year->getYear() . '-' . $month->getMonthNumber() . '-' . $i] ?? 0;

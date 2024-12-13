@@ -16,7 +16,6 @@
     {{ charts.bar_javascript({'legend': {'display': false}}) }}
 {%endblock%}
 {% block report %}
-{{timeResolution}}
 {% if project %}
 {% set chartPrefix = 'project-' ~ project.id ~ '-' %}
     {% import "macros/charts.html.twig" as charts %}
@@ -26,6 +25,7 @@
                 {% set chartLabels = [] %}
                 {% set index = 0 %}
                 {% set monthIndex = 0 %}
+                {% set shouldbreak = false %}
 
                 {% for year in project_details.years %}
                     {# month \App\Model\Statistic\Month #}
@@ -47,6 +47,7 @@
                             {% endif %}
                         {% else %}
                             {% for day in 1..days_in_month[monthIndex] %}
+                                {% if index < running_duration_balance|length %}
                                 {% set dayDate = date(year.year ~ '-' ~ month.month ~ '-' ~ day ~ ' 00:00:00') %}
                                 {% if dayDate >= project.start %}
                                     {% if project.end is null or dayDate < project.end %}
@@ -62,6 +63,7 @@
                                         {% set chartData = chartData|merge([chartValue]) %}
                                     {% endif %}
                                     {% set index = index + 1 %}
+                                {% endif %}
                                 {% endif %}
                             {% endfor %}
                             {% set monthIndex = monthIndex + 1 %}
