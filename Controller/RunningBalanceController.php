@@ -56,6 +56,7 @@ final class RunningBalanceController extends AbstractController
             'project' => $project,
             'timeResolution' => $timeResolution,
             'days_in_month' => [],
+            'years' => [],
         ];
 
         if($project !== null){
@@ -82,7 +83,6 @@ final class RunningBalanceController extends AbstractController
                 foreach ($results as $result) {
                     $durations_by_day[$result['day']] = $result['duration'];
                 }
-
             }
 
             $idx = 0;
@@ -92,6 +92,7 @@ final class RunningBalanceController extends AbstractController
                     if($break) {
                         break;
                     }
+                    //$data["years"][] = $year->getYear();
                     if($year->getYear() > $query->getToday()->format('Y')) {
                     //    break;
                     }
@@ -99,10 +100,12 @@ final class RunningBalanceController extends AbstractController
                         if($break) {
                             break;
                         }
-                        if(($year->getYear() >= $query->getToday()->format('Y') && $month->getMonthNumber() > $query->getToday()->format('m'))) {
-                            $break = true;
-                            break;
-                        }
+                        $data["years"][$year->getYear()][] = $month->getMonthNumber();
+
+                        //if(($year->getYear() >= $query->getToday()->format('Y') && $month->getMonthNumber() > $query->getToday()->format('m'))) {
+                        //    $break = true;
+                        //    break;
+                        // }
                         if($timeResolution === 0) {
                             $previous = $runningDurationBalance[$idx - 1] ?? 0;
                             $runningDurationBalance[] = $previous - $project->getTimeBudget() + $month->getBillableDuration();
@@ -115,18 +118,18 @@ final class RunningBalanceController extends AbstractController
 
                             $data["days_in_month"][] = $daysinmonth;
                             for($i = 1; $i <= $daysinmonth; $i++) {
-                                if($project->getStart() > new DateTime($year->getYear() . '-' . $month->getMonthNumber() . '-' . sprintf("%02d", $i))) {
+                                if($project->getStart() > new DateTime($year->getYear() . '-' . sprintf("%02d", $month->getMonthNumber()) . '-' . sprintf("%02d", $i))) {
                                     $runningDurationBalance[] = 0;
                                     continue;
                                 }
                                 $now = new DateTime();
-                                if(new Datetime($year->getYear() . '-' . $month->getMonthNumber() . '-' . sprintf("%02d", $i)) > $now) {
+                                if(new Datetime($year->getYear() . '-' . sprintf("%02d", $month->getMonthNumber()) . '-' . sprintf("%02d", $i)) > $now) {
                                     $runningDurationBalance[] = 0;
                                     $break = true;
                                     break;
                                 }
                                 $previous = $runningDurationBalance[$idx - 1] ?? 0;
-                                $today = $durations_by_day[$year->getYear() . '-' . $month->getMonthNumber() . '-' . $i] ?? 0;
+                                $today = $durations_by_day[$year->getYear() . '-' . sprintf("%02d", $month->getMonthNumber()) . '-' . sprintf("%02d", $i)] ?? 0;
                                 $runningDurationBalance[$idx] = $previous - $project->getTimeBudget() / $daysinmonth + $today;
                                 $idx++;    
                             }

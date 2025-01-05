@@ -27,14 +27,14 @@
                 {% set monthIndex = 0 %}
                 {% set shouldbreak = false %}
 
-                {% for year in project_details.years %}
+                {% for year,months in years %}
                     {# month \App\Model\Statistic\Month #}
-                    {% for month in year.months %}
+                    {% for month in months %}
                         {% if timeResolution == 0 %}
-                            {% set monthDate = date(year.year ~ '-' ~ month.month ~ '-01 00:00:00') %}
+                            {% set monthDate = date(year ~ '-' ~ month ~ '-01 00:00:00') %}
                             {% if project.end is null or monthDate < project.end %}
                                 {% set totalBudget = running_duration_balance[index] %}
-                                {% set chartLabels = chartLabels|merge([monthDate|month_name ~ ' ' ~ year.year]) %}
+                                {% set chartLabels = chartLabels|merge([monthDate|month_name ~ ' ' ~ year]) %}
                                 {% set chartValue = {
                                             'label': (totalBudget|duration),
                                             'value': '' ~ (totalBudget|chart_duration),
@@ -48,7 +48,7 @@
                         {% else %}
                             {% for day in 1..days_in_month[monthIndex] %}
                                 {% if index < running_duration_balance|length %}
-                                {% set dayDate = date(year.year ~ '-' ~ month.month ~ '-' ~ day ~ ' 00:00:00') %}
+                                {% set dayDate = date(year ~ '-' ~ month ~ '-' ~ day ~ ' 00:00:00') %}
                                 {% if dayDate >= project.start %}
                                     {% if project.end is null or dayDate < project.end %}
                                         {% set totalBudget = running_duration_balance[index] ?? 0 %}
